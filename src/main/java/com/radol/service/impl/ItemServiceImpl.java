@@ -287,7 +287,7 @@ public class ItemServiceImpl implements ItemService {
 
 
 
-    public Page<ItemDTO> findAllwithPaging(int page, int size) {
+    public Page<ItemDTO> findAllWithPaging(int page, int size) {
         // Fetch paginated data
     	
     	PageRequest pr = PageRequest.of(page, size);

@@ -2,6 +2,7 @@ package com.radol.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.radol.dto.ManufacturerDTO;
 import com.radol.dto.UomDTO;
 import com.radol.dto.request.UOMRequestDTO;
 import com.radol.service.UomService;
@@ -33,6 +36,12 @@ public class UomController implements CrudController<UomDTO, Integer> {
         List<UomDTO> uoms = uomService.findAll();
         return new ResponseEntity<>(uoms, HttpStatus.OK);
     }
+    
+    @GetMapping("/all")
+    public ResponseEntity<Page<UomDTO>> getAllPaging(@RequestParam int page, @RequestParam int size){
+    	    Page<UomDTO> uoms = uomService.findAllWithPaging(page,size);
+    	    return new ResponseEntity<>(uoms, HttpStatus.OK);
+    	}
 
     @GetMapping("/{id}")
     @Override

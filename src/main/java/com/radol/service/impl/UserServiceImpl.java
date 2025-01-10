@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.radol.dto.UserDTO;
@@ -11,6 +13,7 @@ import com.radol.dto.request.UserRequestDTO;
 import com.radol.mapper.UserMapper;
 import com.radol.model.User;
 import com.radol.repository.UserRepository;
+import com.radol.repository.UserRepositoryPaging;
 import com.radol.service.UserService;
 
 
@@ -18,14 +21,21 @@ import com.radol.service.UserService;
 public class UserServiceImpl implements UserService {
     @Autowired
     private final UserRepository userRepository;
+    private final UserRepositoryPaging userRepositoryPaging;
     private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
 
-    @Override
+    
+    
+    public UserServiceImpl(UserRepository userRepository, UserRepositoryPaging userRepositoryPaging,
+			UserMapper userMapper) {
+		super();
+		this.userRepository = userRepository;
+		this.userRepositoryPaging = userRepositoryPaging;
+		this.userMapper = userMapper;
+	}
+
+	@Override
     public UserDTO save(UserDTO dto) {
         User user = userMapper.toEntity(dto);
         return userMapper.toDTO(userRepository.save(user));
@@ -69,5 +79,13 @@ public class UserServiceImpl implements UserService {
         user.setStatus(null);
         
         return userMapper.toDTO(userRepository.save(user));
+    }
+    
+    public Page<UserDTO> findAllWithPaging(int page, int size) {
+        // Fetch paginated data
+    	PageRequest pr = PageRequest.of(page, size);
+        Page<User> pagedUsers= userRepositoryPaging.findAll(pr);
+        // Convert entities to DTOs and return the Page<ItemDTO>
+        return pagedUsers.map(userMapper::toDTO);
     }
 }

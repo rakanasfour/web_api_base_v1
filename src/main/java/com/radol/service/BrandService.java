@@ -2,8 +2,11 @@ package com.radol.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.radol.dto.BrandDTO;
 import com.radol.dto.BrandModelDTO;
+import com.radol.dto.ItemDTO;
 import com.radol.dto.request.BrandRequestDTO;
 import com.radol.model.Brand;
 
@@ -14,6 +17,9 @@ public interface BrandService  extends CrudService<BrandDTO, Brand, Integer>  {
 	 
 
 	 BrandDTO updateBrand(Integer id, BrandRequestDTO dto);
+	 
+	    public Page<BrandDTO> findAllWithPaging(int page, int size);
+
 
 
 	

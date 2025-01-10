@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.radol.dto.BrandDTO;
@@ -13,6 +15,7 @@ import com.radol.mapper.BrandMapper;
 import com.radol.model.Brand;
 import com.radol.model.Manufacturer;
 import com.radol.repository.BrandRepository;
+import com.radol.repository.BrandRepositoryPaging;
 import com.radol.repository.ManufacturerRepository;
 import com.radol.service.BrandService;
 
@@ -22,15 +25,16 @@ import jakarta.persistence.EntityNotFoundException;
 public class BrandServiceImpl implements BrandService {
     @Autowired
     private final BrandRepository brandRepository;
+    private final BrandRepositoryPaging brandRepositoryPaging;
     private final BrandMapper brandMapper;
     private final ManufacturerRepository manufacturerRepository;
 
-    
 
-    public BrandServiceImpl(BrandRepository brandRepository, BrandMapper brandMapper,
-			ManufacturerRepository manufacturerRepository) {
+	public BrandServiceImpl(BrandRepository brandRepository, BrandRepositoryPaging brandRepositoryPaging,
+			BrandMapper brandMapper, ManufacturerRepository manufacturerRepository) {
 		super();
 		this.brandRepository = brandRepository;
+		this.brandRepositoryPaging = brandRepositoryPaging;
 		this.brandMapper = brandMapper;
 		this.manufacturerRepository = manufacturerRepository;
 	}
@@ -93,6 +97,19 @@ public class BrandServiceImpl implements BrandService {
     	brand.setManufacturer(manufacturer);
         return brandMapper.toDTO(brandRepository.save(brand));
     }
+    
+    
+    
+    public Page<BrandDTO> findAllWithPaging(int page, int size) {
+    	PageRequest pr = PageRequest.of(page, size);
+    	 // Fetch the Page<Brand> from the repository
+        Page<Brand> brandPage = brandRepositoryPaging.findAll(pr);
+
+        // Map the entities to DTOs and maintain the Page structure
+        return brandPage.map(brandMapper::toDTO);
+    }
+
+    
 
     
 }

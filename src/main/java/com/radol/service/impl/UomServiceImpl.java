@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.radol.dto.UomDTO;
@@ -16,26 +18,36 @@ import com.radol.model.UomChannel;
 import com.radol.repository.ChannelRepository;
 import com.radol.repository.UomChannelRepository;
 import com.radol.repository.UomRepository;
+import com.radol.repository.UomRepositoryPaging;
 import com.radol.service.UomService;
 
 @Service
 public class UomServiceImpl implements UomService {
     @Autowired
     private final UomRepository uomRepository;
+    private final UomRepositoryPaging uomRepositoryPaging;
     private final UomMapper uomMapper;
     private final ChannelMapper channelMapper;
     private final ChannelRepository channelRepository;
     private final UomChannelRepository uomChannelRepository;
 
-    public UomServiceImpl(UomRepository uomRepository, UomMapper uomMapper, ChannelMapper channelMapper, ChannelRepository channelRepository,  UomChannelRepository uomChannelRepository) {
-        this.uomRepository = uomRepository;
-        this.uomMapper = uomMapper;
-        this.channelMapper=channelMapper;
-        this.channelRepository=channelRepository;
-        this.uomChannelRepository=uomChannelRepository;
-    }
 
-    @Override
+    
+    
+
+    public UomServiceImpl(UomRepository uomRepository, UomRepositoryPaging uomRepositoryPaging, UomMapper uomMapper,
+			ChannelMapper channelMapper, ChannelRepository channelRepository,
+			UomChannelRepository uomChannelRepository) {
+		super();
+		this.uomRepository = uomRepository;
+		this.uomRepositoryPaging = uomRepositoryPaging;
+		this.uomMapper = uomMapper;
+		this.channelMapper = channelMapper;
+		this.channelRepository = channelRepository;
+		this.uomChannelRepository = uomChannelRepository;
+	}
+
+	@Override
     public UomDTO save(UomDTO dto) {
         Uom uom = uomMapper.toEntity(dto);
         
@@ -95,4 +107,13 @@ public class UomServiceImpl implements UomService {
         uom.setUomStatus(dto.getUomStatus());
         return uomMapper.toDTO(uomRepository.save(uom));
     }
+    
+    public Page<UomDTO> findAllWithPaging(int page, int size) {
+        // Fetch paginated data
+    	PageRequest pr = PageRequest.of(page, size);
+        Page<Uom> pagedUoms = uomRepositoryPaging.findAll(pr);
+        // Convert entities to DTOs and return the Page<ItemDTO>
+        return pagedUoms.map(uomMapper::toDTO);
+    }
+
 }

@@ -2,6 +2,7 @@ package com.radol.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.radol.dto.ManufacturerDTO;
 import com.radol.dto.ModelPictureDTO;
 import com.radol.service.ModelPictureService;
 
@@ -32,6 +35,12 @@ public class ModelPictureController implements CrudController<ModelPictureDTO, I
         List<ModelPictureDTO> modelPictures = modelPictureService.findAll();
         return new ResponseEntity<>(modelPictures, HttpStatus.OK);
     }
+    
+    @GetMapping("/all")
+    public ResponseEntity<Page<ModelPictureDTO>> getAllPaging(@RequestParam int page, @RequestParam int size){
+    	    Page<ModelPictureDTO> modelPictures = modelPictureService.findAllWithPaging(page,size);
+    	    return new ResponseEntity<>(modelPictures, HttpStatus.OK);
+    	}
 
     @GetMapping("/{id}")
     @Override

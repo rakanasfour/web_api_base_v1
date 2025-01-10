@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.radol.dto.ManufacturerDTO;
@@ -15,6 +17,7 @@ import com.radol.mapper.ManufacturerMapper;
 import com.radol.model.Manufacturer;
 import com.radol.model.ManufacturerFacility;
 import com.radol.repository.ManufacturerRepository;
+import com.radol.repository.ManufacturerRepositoryPaging;
 import com.radol.service.ManufacturerService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -24,17 +27,25 @@ import jakarta.transaction.Transactional;
 public class ManufacturerServiceImpl implements ManufacturerService {
     @Autowired
     private final ManufacturerRepository manufacturerRepository;
-
+    private final ManufacturerRepositoryPaging manufacturerRepositoryPaging;
     private final ManufacturerMapper manufacturerMapper;
     private final ManufacturerFacilityMapper manufacturerFacilityMapper;
-    public ManufacturerServiceImpl(ManufacturerRepository manufacturerRepository, ManufacturerMapper manufacturerMapper
-    		 ,ManufacturerFacilityMapper manufacturerFacilityMapper
-    		) {
-        this.manufacturerRepository = manufacturerRepository;
-        this.manufacturerMapper = manufacturerMapper;
-        this.manufacturerFacilityMapper = manufacturerFacilityMapper;
-    }
-    @Transactional
+
+    
+    
+    public ManufacturerServiceImpl(ManufacturerRepository manufacturerRepository,
+			ManufacturerRepositoryPaging manufacturerRepositoryPaging, ManufacturerMapper manufacturerMapper,
+			ManufacturerFacilityMapper manufacturerFacilityMapper) {
+		super();
+		this.manufacturerRepository = manufacturerRepository;
+		this.manufacturerRepositoryPaging = manufacturerRepositoryPaging;
+		this.manufacturerMapper = manufacturerMapper;
+		this.manufacturerFacilityMapper = manufacturerFacilityMapper;
+	}
+
+
+
+	@Transactional
     @Override
     public ManufacturerDTO save(ManufacturerDTO dto) {
    
@@ -118,6 +129,14 @@ public class ManufacturerServiceImpl implements ManufacturerService {
 
         // Convert to DTO and return
         return manufacturerMapper.toDTO(updatedManufacturer);
+    }
+    
+    public Page<ManufacturerDTO> findAllWithPaging(int page, int size) {
+        // Fetch paginated data
+    	PageRequest pr = PageRequest.of(page, size);
+        Page<Manufacturer> pagedManufacturers = manufacturerRepositoryPaging.findAll(pr);
+        // Convert entities to DTOs and return the Page<ItemDTO>
+        return pagedManufacturers.map(manufacturerMapper::toDTO);
     }
 
     

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.radol.dto.ModelDTO;
@@ -13,6 +15,7 @@ import com.radol.model.Brand;
 import com.radol.model.Model;
 import com.radol.repository.BrandRepository;
 import com.radol.repository.ModelRepository;
+import com.radol.repository.ModelRepositoryPaging;
 import com.radol.service.ModelService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -21,14 +24,18 @@ import jakarta.persistence.EntityNotFoundException;
 public class ModelServiceImpl implements ModelService {
     @Autowired
     private final ModelRepository modelRepository;
+    private final ModelRepositoryPaging modelRepositoryPaging;
     private final ModelMapper modelMapper;
     private BrandRepository brandRepository;
     
 
+    
 
-    public ModelServiceImpl(ModelRepository modelRepository, ModelMapper modelMapper, BrandRepository brandRepository) {
+	public ModelServiceImpl(ModelRepository modelRepository, ModelRepositoryPaging modelRepositoryPaging,
+			ModelMapper modelMapper, BrandRepository brandRepository) {
 		super();
 		this.modelRepository = modelRepository;
+		this.modelRepositoryPaging = modelRepositoryPaging;
 		this.modelMapper = modelMapper;
 		this.brandRepository = brandRepository;
 	}
@@ -94,4 +101,16 @@ public class ModelServiceImpl implements ModelService {
         modelEntity.setBrand(brand);
         return modelMapper.toDTO(modelRepository.save(modelEntity));
     }
+	
+	
+	
+    public Page<ModelDTO> findAllWithPaging(int page, int size) {
+        // Fetch paginated data
+    	PageRequest pr = PageRequest.of(page, size);
+        Page<Model> pagedModels = modelRepositoryPaging.findAll(pr);
+        // Convert entities to DTOs and return the Page<ItemDTO>
+        return pagedModels.map(modelMapper::toDTO);
+    }
+	
+	
 }

@@ -2,6 +2,7 @@ package com.radol.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.radol.dto.ItemDTO;
 import com.radol.dto.ManufacturerDTO;
 import com.radol.dto.request.ManufacturerRequestDTO;
 import com.radol.service.ManufacturerService;
@@ -35,6 +38,12 @@ public class ManufacturerController implements CrudController<ManufacturerDTO, I
         List<ManufacturerDTO> manufacturers = manufacturerService.findAll();
         return new ResponseEntity<>(manufacturers, HttpStatus.OK);
     }
+    
+    @GetMapping("/all")
+    public ResponseEntity<Page<ManufacturerDTO>> getAllPaging(@RequestParam int page, @RequestParam int size){
+    	    Page<ManufacturerDTO> manufacturers = manufacturerService.findAllWithPaging(page,size);
+    	    return new ResponseEntity<>(manufacturers, HttpStatus.OK);
+    	}
 
     @GetMapping("/{id}")
     @Override

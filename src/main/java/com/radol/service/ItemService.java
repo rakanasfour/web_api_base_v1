@@ -20,7 +20,7 @@ public interface ItemService  extends CrudService<ItemDTO, Item, Integer>  {
 	
     ItemDTO updateItem(Integer id, ItemRequestDTO dto);
     
-    public Page<ItemDTO> findAllwithPaging(int page, int size);
+    public Page<ItemDTO> findAllWithPaging(int page, int size);
 
 		   
 	}

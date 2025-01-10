@@ -38,9 +38,9 @@ public class ItemController implements CrudController<ItemDTO, Integer> {
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
    
-    @GetMapping("/test")
-    public ResponseEntity<Page<ItemDTO>> getAllTest(@RequestParam int page, @RequestParam int size){
-    	    Page<ItemDTO> items = itemService.findAllwithPaging(page,size);
+    @GetMapping("/all")
+    public ResponseEntity<Page<ItemDTO>> getAllPaging(@RequestParam int page, @RequestParam int size){
+    	    Page<ItemDTO> items = itemService.findAllWithPaging(page,size);
     	    return new ResponseEntity<>(items, HttpStatus.OK);
     	}
   
