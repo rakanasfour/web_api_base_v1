@@ -3,8 +3,6 @@ package com.radol.controller;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,6 +36,8 @@ public class ItemController implements CrudController<ItemDTO, Integer> {
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
    
+    
+    
     @GetMapping("/all")
     public ResponseEntity<Page<ItemDTO>> getAllPaging(@RequestParam int page, @RequestParam int size){
     	    Page<ItemDTO> items = itemService.findAllWithPaging(page,size);
@@ -53,6 +53,7 @@ public class ItemController implements CrudController<ItemDTO, Integer> {
     }
     
 
+    
 
 
     @PostMapping
@@ -87,5 +88,19 @@ public class ItemController implements CrudController<ItemDTO, Integer> {
         ItemDTO itemDTO = itemService.updateItem(id, dto);
         return new ResponseEntity<>(itemDTO, HttpStatus.OK);
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<List<ItemDTO>> searchItems(@RequestParam("name") String name) {
+    	  List<ItemDTO> itemDTO = itemService.searchItemsByName(name);
+
+        return new ResponseEntity<>(itemDTO, HttpStatus.OK);
+    }
+    
+    @GetMapping("/sort/{field}")
+    public ResponseEntity<List<ItemDTO>> findAllASC(@PathVariable String field) {
+        List<ItemDTO> items = itemService.findAllASC( field);
+        return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+   
 
 }

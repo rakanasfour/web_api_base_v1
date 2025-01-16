@@ -6,7 +6,7 @@ use web_api_base;
 # this is just for the users who can access the system 
 CREATE TABLE users (
     user_id INT UNSIGNED UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    user_name VARCHAR(99) NOT NULL UNIQUE,
+    user_name VARCHAR(99) NOT NULL,
      user_password VARCHAR(99) NOT NULL,
     user_email VARCHAR(99) NOT NULL UNIQUE,
     user_first_name VARCHAR(99) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE users (
 #one edistributor will have many brands
 create table distributors(
 distributor_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-distributor_name varchar(99) NOT NULL UNIQUE,
+distributor_name varchar(99) NOT NULL,
 distributor_address varchar(250),
 distributor_country varchar(99),
 distributor_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -88,7 +88,7 @@ m_pricing_cost DECIMAL(10, 2)
 #one to many with manufacturer_facilities
 CREATE TABLE manufacturers (
     manufacturer_id INT UNSIGNED UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    manufacturer_name VARCHAR(99) NOT NULL UNIQUE,
+    manufacturer_name VARCHAR(99) NOT NULL,
     manufacturer_description VARCHAR(300) NOT NULL,
     manufacturer_status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
     manufacturer_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -111,8 +111,8 @@ CREATE TABLE manufacturer_facilities (
 #one to many with brand_pictures
 CREATE TABLE brands (
     brand_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    brand_name VARCHAR(99) NOT NULL UNIQUE,
-    brand_description VARCHAR(300) NOT NULL,
+    brand_name VARCHAR(99) NOT NULL,
+    brand_description VARCHAR(500) NOT NULL,
 
     brand_status ENUM('AVAILABLE', 'DISCONTINUED') NOT NULL DEFAULT 'AVAILABLE',
     brand_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -124,6 +124,8 @@ CREATE TABLE brands (
     INDEX (brand_manufacturer_id),  
     INDEX (brand_name)  
 );
+
+
 
 
 # many to one brands
@@ -214,7 +216,6 @@ CREATE TABLE items (
 	foreign key (item_compliance_category_id) references compliance_categories(compliance_category_id),
     INDEX (item_name) 
 );
-
 
 
 CREATE TABLE uoms (

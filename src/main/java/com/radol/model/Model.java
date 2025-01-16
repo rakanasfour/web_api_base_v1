@@ -39,8 +39,9 @@ public class Model {
     @OneToMany(mappedBy="model")
     private List<ModelPicture> modelPictures;
     
-    
-    @OneToMany(mappedBy="model")
+
+
+    @OneToMany(mappedBy="model" )
     private List<Item> items;
 
 

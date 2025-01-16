@@ -17,6 +17,8 @@ import com.radol.repository.ItemPictureRepository;
 import com.radol.repository.ItemPictureRepositoryPaging;
 import com.radol.service.ItemPictureService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ItemPictureServiceImpl implements ItemPictureService {
     @Autowired
@@ -103,4 +105,21 @@ public class ItemPictureServiceImpl implements ItemPictureService {
             return itemPictureMapper.toDTO(itemPictureWithUrl);
         });
     }
+    
+    
+    @Override
+    public ItemPictureDTO findByItemId(int id) {
+        return itemPictureRepository.findById(id)
+                .map(itemPicture -> {
+                    String presignedUrl = s3Service.generatePresignedUrl(bucketName, itemPicture.getItemPictureMain());
+                    ItemPicture updatedItemPicture = new ItemPicture(
+                            itemPicture.getItemPictureId(),
+                            presignedUrl,
+                            itemPicture.getItemPItemId()
+                    );
+                    return itemPictureMapper.toDTO(updatedItemPicture);
+                })
+                .orElseThrow(() -> new EntityNotFoundException("ItemPicture not found with id: " + id));
+    }
+
 }

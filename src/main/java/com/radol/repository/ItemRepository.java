@@ -101,6 +101,10 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
 	@Query("SELECT i FROM Item i JOIN FETCH i.uoms u " +
 		       "WHERE u.uomLevel < 11 AND u.uomLevel > 4 AND u IS NOT NULL AND i.itemName = :itemName")
     List<Item> findByItemNameWholeSale(@Param("itemName")String itemName);
+	
+	
+    @Query("SELECT i FROM Item i WHERE LOWER(i.itemName) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<Item> findByNameContaining(@Param("name") String name);
 
 	
 	

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.radol.dto.ItemDTO;
 import com.radol.dto.ItemPictureDTO;
 import com.radol.dto.ManufacturerDTO;
 import com.radol.dto.request.ItemPictureRequestDTO;
@@ -30,6 +31,7 @@ public class ItemPictureController implements CrudController<ItemPictureDTO, Int
         this.itemPictureService = itemPictureService;
     }
 
+    
     @GetMapping
     @Override
     public ResponseEntity<List<ItemPictureDTO>> getAll() {
@@ -49,6 +51,7 @@ public class ItemPictureController implements CrudController<ItemPictureDTO, Int
         ItemPictureDTO itemPicture = itemPictureService.findById(id);
         return new ResponseEntity<>(itemPicture, HttpStatus.OK);
     }
+    
 
     @PostMapping
     @Override
@@ -74,5 +77,12 @@ public class ItemPictureController implements CrudController<ItemPictureDTO, Int
     public ResponseEntity<ItemPictureDTO> updateItemPicture(@PathVariable Integer id, @RequestBody ItemPictureRequestDTO dto) {
         ItemPictureDTO itemPictureDTO = itemPictureService.updateItemPicture(id, dto);
         return new ResponseEntity<>(itemPictureDTO, HttpStatus.OK);
+    }
+    
+    @GetMapping("/item/{id}")
+
+    public ResponseEntity<ItemPictureDTO> getByItemId(@PathVariable int id) {
+    	ItemPictureDTO itemPicture = itemPictureService.findByItemId(id);
+        return new ResponseEntity<>(itemPicture, HttpStatus.OK);
     }
 }

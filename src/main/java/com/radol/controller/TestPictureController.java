@@ -22,11 +22,6 @@ public class TestPictureController  {
 
     private final S3Service s3Service;
     
-
-    
-    
-    
-
    @Value("${aws.s3.bucket.name}")
 
     private String bucketName;
@@ -75,6 +70,13 @@ public class TestPictureController  {
         List<TestPicture> testPictures = testPictureServiceImpl.findAll();
         return new ResponseEntity<>(testPictures, HttpStatus.OK);
     }
+	
+    @GetMapping("/{id}")
+    public ResponseEntity<List<TestPicture>> getById(@PathVariable Integer id) {
+        List<TestPicture> testPictures = testPictureServiceImpl.findAll();
+        return new ResponseEntity<>(testPictures, HttpStatus.OK);
+    }
+
 
 
 

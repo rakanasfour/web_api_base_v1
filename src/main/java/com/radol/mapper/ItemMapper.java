@@ -1,33 +1,34 @@
 package com.radol.mapper;
 
-import org.mapstruct.InheritInverseConfiguration;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
+import org.mapstruct.*;
 import com.radol.dto.ItemDTO;
+import com.radol.dto.ItemPictureDTO;
 import com.radol.model.Item;
+import com.radol.model.ItemPicture;
 
-@Mapper(componentModel = "spring",uses = {ItemAttributeMapper.class,ItemSalesCategoryMapper.class})
-	public interface ItemMapper extends EntityMapper<ItemDTO, Item> {
-		
-	 @Mapping(source = "itemId", target = "itemId")
-	    @Mapping(source = "itemName", target = "itemName")
-	  @Mapping(source = "itemAttributes", target = "attributes")
-	 @Mapping(source = "itemSalesCategories", target = "salesCategories")
-	    @Mapping(source = "uoms", target = "uoms")
-	    @Mapping(source = "model.modelId", target = "modelId")
+import java.util.List;
 
+@Mapper(componentModel = "spring", uses = {ItemAttributeMapper.class, ItemSalesCategoryMapper.class})
+public interface ItemMapper extends EntityMapper<ItemDTO, Item> {
 
-	 
-	 ItemDTO toDTO(Item entity );
-	 
-	 
-	 @InheritInverseConfiguration
+    @Mapping(source = "itemId", target = "itemId")
+    @Mapping(source = "itemName", target = "itemName")
+    @Mapping(source = "itemAttributes", target = "attributes")
+    @Mapping(source = "itemSalesCategories", target = "salesCategories")
+    @Mapping(source = "uoms", target = "uoms")
+    @Mapping(source = "model.modelId", target = "modelId")
+    @Mapping(source = "itemPictures",target = "itemPictures" ) 
+    ItemDTO toDTO(Item entity);
 
-	Item toEntity(ItemDTO dto);
+    @InheritInverseConfiguration
+   // @Mapping(target = "itemPictures", ignore = true) // Temporarily ignore itemPictures
+    Item toEntity(ItemDTO dto);
 
-
-
-
-
+    /*
+    @Mapping(source = "itemPictureId", target = "itemPictureId")
+    @Mapping(source = "itemPictureMain", target = "itemPictureMain")
+    ItemPictureDTO toItemPictureDTO(ItemPicture itemPicture);
+    
+    */
 }
+

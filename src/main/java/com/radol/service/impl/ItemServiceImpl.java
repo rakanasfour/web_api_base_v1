@@ -1,13 +1,13 @@
 package com.radol.service.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.radol.dto.ItemDTO;
@@ -16,6 +16,7 @@ import com.radol.mapper.ItemMapper;
 import com.radol.model.Attribute;
 import com.radol.model.Item;
 import com.radol.model.ItemAttribute;
+import com.radol.model.ItemPicture;
 import com.radol.model.ItemSalesCategory;
 import com.radol.model.Model;
 import com.radol.model.SalesCategory;
@@ -30,11 +31,13 @@ import com.radol.repository.SalesCategoryRepository;
 import com.radol.repository.UomRepository;
 import com.radol.service.ItemService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ItemServiceImpl implements ItemService {
 	
 	
-
+    @Autowired
     private final ItemRepository itemRepository;
     private final ItemAttributeRepository itemAttributeRepository;
     private final ModelRepository modelRepository;
@@ -46,13 +49,20 @@ public class ItemServiceImpl implements ItemService {
     private final DocumentStorageRepository documentStorageRepository;
     private final ItemRepositoryPaging itemRepositoryPaging;
     
+    private final S3Service s3Service;
     
-    @Autowired
+    @Value("${aws.s3.bucket.name}")
+    private  String bucketName;
+    
+
+
+
 	public ItemServiceImpl(ItemRepository itemRepository, ItemAttributeRepository itemAttributeRepository,
 			ModelRepository modelRepository, ItemMapper itemMapper,
 			ItemSalesCategoryRepository itemSalesCategoryRepository, AttributeRepository attributeRepository,
 			SalesCategoryRepository salesCategoryRepository, UomRepository uomRepository,
-			DocumentStorageRepository documentStorageRepository, ItemRepositoryPaging itemRepositoryPaging) {
+			DocumentStorageRepository documentStorageRepository, ItemRepositoryPaging itemRepositoryPaging,
+			S3Service s3Service) {
 		super();
 		this.itemRepository = itemRepository;
 		this.itemAttributeRepository = itemAttributeRepository;
@@ -64,70 +74,8 @@ public class ItemServiceImpl implements ItemService {
 		this.uomRepository = uomRepository;
 		this.documentStorageRepository = documentStorageRepository;
 		this.itemRepositoryPaging = itemRepositoryPaging;
+		this.s3Service = s3Service;
 	}
-    
-    
-
-
-
-
-	public ItemRepository getItemRepository() {
-		return itemRepository;
-	}
-
-
-
-
-
-
-
-	public ItemAttributeRepository getItemAttributeRepository() {
-		return itemAttributeRepository;
-	}
-
-
-
-	public ModelRepository getModelRepository() {
-		return modelRepository;
-	}
-
-
-
-	public ItemMapper getItemMapper() {
-		return itemMapper;
-	}
-
-
-
-	public ItemSalesCategoryRepository getItemSalesCategoryRepository() {
-		return itemSalesCategoryRepository;
-	}
-
-
-
-	public AttributeRepository getAttributeRepository() {
-		return attributeRepository;
-	}
-
-
-
-	public SalesCategoryRepository getSalesCategoryRepository() {
-		return salesCategoryRepository;
-	}
-
-
-
-	public UomRepository getUomRepository() {
-		return uomRepository;
-	}
-
-
-
-	public DocumentStorageRepository getDocumentStorageRepository() {
-		return documentStorageRepository;
-	}
-
-
 
 
 
@@ -139,32 +87,47 @@ public class ItemServiceImpl implements ItemService {
     
     
 
-    public ItemDTO findItemByIdAdminUOM(Integer id) {
-    	return Optional.ofNullable(itemRepository.findItemByIdAdminUOM(id))
-                .map(itemMapper::toDTO)
-                /*
-                .map(itemDTO -> {
-                    if (itemDTO.getUoms() != null && !itemDTO.getUoms().isEmpty()) {
-                        BigDecimal totalPrice = BigDecimal.ZERO;
+	  @Override
+	    public ItemDTO findItemByIdAdminUOM(Integer id) {
+	        return itemRepository.findById(id)
+	                .map(item -> {
+	                    List<ItemPicture> updatedPictures = item.getItemPictures().stream()
+	                            .map(itemPicture -> {
+	                                String presignedUrl = s3Service.generatePresignedUrl(bucketName, itemPicture.getItemPictureMain());
+	                                return new ItemPicture(itemPicture.getItemPictureId(), presignedUrl, itemPicture.getItemPItemId());
+	                            })
+	                            .collect(Collectors.toList());
+	                    item.setItemPictures(updatedPictures);
+	                    return item;
+	                })
+	                .map(itemMapper::toDTO)
+	                .orElseThrow(() -> new EntityNotFoundException("Item with ID " + id + " not found"));
+	    }
+	
 
-                        for (UomDTO uom : itemDTO.getUoms()) {
-                            BigDecimal uomQuantity = BigDecimal.valueOf(uom.getUomQuantity());
-                            ManufacturerPricingDTO manufacturerPricing = uom.getManufacturerPricing();
+    
+    
+    /*
+    .map(itemDTO -> {
+        if (itemDTO.getUoms() != null && !itemDTO.getUoms().isEmpty()) {
+            BigDecimal totalPrice = BigDecimal.ZERO;
 
-                            if (manufacturerPricing != null && manufacturerPricing.getPricingList() != null) {
-                                // Multiply uomQuantity by the pricingList field
-                                totalPrice = totalPrice.add(uomQuantity.multiply(manufacturerPricing.getPricingList()));
-                            }
-                        }
+            for (UomDTO uom : itemDTO.getUoms()) {
+                BigDecimal uomQuantity = BigDecimal.valueOf(uom.getUomQuantity());
+                ManufacturerPricingDTO manufacturerPricing = uom.getManufacturerPricing();
 
-                        // Set the total calculated price as the itemBasePrice
-                        itemDTO.setItemBasePrice(totalPrice);
-                    }
-                    return itemDTO;
-                })
-                */
-                .orElseThrow(() -> new RuntimeException("Item not found"));
-    }
+                if (manufacturerPricing != null && manufacturerPricing.getPricingList() != null) {
+                    // Multiply uomQuantity by the pricingList field
+                    totalPrice = totalPrice.add(uomQuantity.multiply(manufacturerPricing.getPricingList()));
+                }
+            }
+
+            // Set the total calculated price as the itemBasePrice
+            itemDTO.setItemBasePrice(totalPrice);
+        }
+        return itemDTO;
+    })
+    */
 
 
 
@@ -296,7 +259,20 @@ public class ItemServiceImpl implements ItemService {
         // Convert entities to DTOs and return the Page<ItemDTO>
         return pagedItems.map(itemMapper::toDTO);
     }
-
+    
+    public List<ItemDTO> searchItemsByName(String name) {
+       
+        return itemRepository.findByNameContaining(name).stream()
+                .map(itemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<ItemDTO> findAllASC(String field) {
+        return itemRepository.findAll(Sort.by(Sort.Direction.ASC, field))
+                             .stream()
+                             .map(itemMapper::toDTO)
+                             .collect(Collectors.toList());
+    }
 	
     
 }

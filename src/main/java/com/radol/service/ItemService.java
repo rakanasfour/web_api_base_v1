@@ -1,5 +1,7 @@
 package com.radol.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,6 +23,10 @@ public interface ItemService  extends CrudService<ItemDTO, Item, Integer>  {
     ItemDTO updateItem(Integer id, ItemRequestDTO dto);
     
     public Page<ItemDTO> findAllWithPaging(int page, int size);
+    
+    public List<ItemDTO> searchItemsByName(String name);
+    
+    public List<ItemDTO> findAllASC(String field);
 
 		   
 	}
